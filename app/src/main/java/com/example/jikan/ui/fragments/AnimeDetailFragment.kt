@@ -1,27 +1,26 @@
-package com.example.jikan
+package com.example.jikan.ui.fragments
 
 import android.animation.LayoutTransition
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
+import com.example.jikan.data.AnimeInfo
+import com.example.jikan.R
 import com.example.jikan.databinding.FragmentAnimeDetailBinding
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "info"
 
-
 class AnimeDetailFragment : Fragment() {
-    // TODO: Rename and change types of parameters
+
+
     private var animeInfo: AnimeInfo? = null
     private var _binding: FragmentAnimeDetailBinding? = null
     private val binding get() = _binding!!
@@ -38,37 +37,35 @@ class AnimeDetailFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentAnimeDetailBinding.inflate(inflater)
+    ): View? {
+        _binding = FragmentAnimeDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        Log.i("aa", animeInfo.toString())
         binding.apply {
-            val layoutTransition = root.layoutTransition
+            val layoutTransition = fragmentAnimeDetailConstraintLayout.layoutTransition
             layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+
             animeDetailAnimeName.apply {
                 text = animeInfo?.Title
-
             }
+
             animeDetailFragmentSynopsis.text = animeInfo?.synopsis
             fragmentAnimeDetailExpandButton.setOnClickListener {
-                Log.i("button state" , if(expanded) "expanded" else "collapsed")
+                Log.i("button state", if (expanded) "expanded" else "collapsed")
                 if (expanded) {
                     animeDetailFragmentSynopsis.maxLines = 5
                     expanded = false
-                    fragmentAnimeDetailExpandButton.text =
-                        getString(R.string.fragment_anime_detail_expand_button_label)
+                    fragmentAnimeDetailExpandButton.text = getString(R.string.fragment_anime_detail_expand_button_label)
                 } else {
                     animeDetailFragmentSynopsis.maxLines = Int.MAX_VALUE
                     expanded = true
-                    fragmentAnimeDetailExpandButton.text =
-                        getString(R.string.fragment_anime_detail_collapse_button_label)
+                    fragmentAnimeDetailExpandButton.text = getString(R.string.fragment_anime_detail_collapse_button_label)
                 }
             }
-
             Picasso.get().load(animeInfo?.imageUrl).into(animeDetailFragmentImage)
         }
     }
@@ -80,8 +77,8 @@ class AnimeDetailFragment : Fragment() {
             lifecycleScope.launch {
                 delay(100)
                 if (animeDetailFragmentSynopsis.lineCount <=5) fragmentAnimeDetailExpandButton.visibility =
-                    View.INVISIBLE
-                Log.i("lines count", animeDetailFragmentSynopsis.lineCount.toString())
+                    View.GONE
+
             }
         }
     }
@@ -90,6 +87,8 @@ class AnimeDetailFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+
 
     companion object {
         /**

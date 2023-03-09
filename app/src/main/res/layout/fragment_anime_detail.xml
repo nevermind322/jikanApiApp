@@ -1,59 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:isScrollContainer="true"
     android:animateLayoutChanges="true"
-    tools:context=".AnimeDetailFragment">
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/anime_detail_fragment_synopsis"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fragment_anime_detail_constraint_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:maxLines="5"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/anime_detail_animeName"
-        tools:text="@string/lorem_ipsum" />
+        android:animateLayoutChanges="true"
+        android:isScrollContainer="true"
+        tools:context=".ui.fragments.AnimeDetailFragment">
 
-    <TextView
-        android:id="@+id/anime_detail_animeName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/anime_detail_fragment_image"
-        tools:text="some anime name" />
+        <TextView
+            android:id="@+id/anime_detail_fragment_synopsis"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:maxLines="5"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/anime_detail_animeName"
+            tools:text="@string/lorem_ipsum" />
 
-    <ImageView
-        android:id="@+id/anime_detail_fragment_image"
-        android:layout_width="0dp"
-        android:layout_height="300dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:src="@tools:sample/avatars" />
+        <TextView
+            android:id="@+id/anime_detail_animeName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/anime_detail_fragment_image"
+            tools:text="some anime name" />
 
-    <Button
-        android:id="@+id/fragment_anime_detail_expand_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/fragment_anime_detail_expand_button_label"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="@+id/anime_detail_fragment_synopsis"
-        app:layout_constraintStart_toStartOf="@+id/anime_detail_fragment_synopsis"
-        app:layout_constraintTop_toBottomOf="@+id/anime_detail_fragment_synopsis" />
+        <ImageView
+            android:id="@+id/anime_detail_fragment_image"
+            android:layout_width="0dp"
+            android:layout_height="300dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@tools:sample/avatars" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/fragment_anime_detail_expand_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/fragment_anime_detail_expand_button_label"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="@+id/anime_detail_fragment_synopsis"
+            app:layout_constraintStart_toStartOf="@+id/anime_detail_fragment_synopsis"
+            app:layout_constraintTop_toBottomOf="@+id/anime_detail_fragment_synopsis" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

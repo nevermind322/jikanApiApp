@@ -3,23 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/searchFragment">
-    <fragment
-        android:id="@+id/searchFragment"
-        android:name="com.example.jikan.SearchFragment"
-        android:label="fragment_search"
-        tools:layout="@layout/fragment_search" >
-        <action
-            android:id="@+id/action_searchFragment_to_animeDetailFragment"
-            app:destination="@id/animeDetailFragment" />
-    </fragment>
+    app:startDestination="@id/topAnimeWithSearchFragment">
     <fragment
         android:id="@+id/animeDetailFragment"
-        android:name="com.example.jikan.AnimeDetailFragment"
+        android:name="com.example.jikan.ui.fragments.AnimeDetailFragment"
         android:label="fragment_anime_detail"
         tools:layout="@layout/fragment_anime_detail" >
         <argument
             android:name="info"
-            app:argType="com.example.jikan.AnimeInfo" />
+            app:argType="com.example.jikan.data.AnimeInfo" />
+    </fragment>
+    <fragment
+        android:id="@+id/topAnimeWithSearchFragment"
+        android:name="com.example.jikan.ui.fragments.TopAnimeWithSearchFragment"
+        android:layout="@layout/fragment_search_with_list"
+        android:label="TopAnimeWithSearchFragment" >
+        <action
+            android:id="@+id/action_topAnimeWithSearchFragment_to_animeDetailFragment"
+            app:destination="@id/animeDetailFragment" />
     </fragment>
 </navigation>

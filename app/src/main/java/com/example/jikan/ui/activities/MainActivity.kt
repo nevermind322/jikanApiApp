@@ -1,32 +1,42 @@
-package com.example.jikan
+package com.example.jikan.ui.activities
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.bundleOf
-import androidx.fragment.app.add
-import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import com.example.jikan.*
+import com.example.jikan.data.AnimeInfo
+import com.example.jikan.data.repos.AnimeRepository
+import com.example.jikan.databinding.ActivityMainBinding
+import com.example.jikan.ui.fragments.TopAnimeWithSearchFragmentDirections
+import com.example.jikan.viewModels.AnimeInfoUiState
+import com.example.jikan.viewModels.AnimeViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 class MainActivity : AppCompatActivity() {
     private val animeViewModel by viewModels<AnimeViewModel> {
         AnimeViewModel.AnimeViewModelProviderFactory(AnimeRepository((JikanAnimeDataSource())))
     }
 
+    private lateinit var binding : ActivityMainBinding
+
+    init {
+        Log.i("lifecycle", "$this created")
+    }
+
+    protected fun finalize(){
+        Log.i("lifecycle", "$this dead")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         animeViewModel.resetValue()
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -42,9 +52,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showAnimePage(info: AnimeInfo) {
+     fun showAnimePage(info: AnimeInfo) {
 
-        val direction = SearchFragmentDirections.actionSearchFragmentToAnimeDetailFragment(info)
+        val direction = TopAnimeWithSearchFragmentDirections.actionTopAnimeWithSearchFragmentToAnimeDetailFragment(info)
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.main_nav_host) as NavHostFragment
         val navController = navHostFragment.navController

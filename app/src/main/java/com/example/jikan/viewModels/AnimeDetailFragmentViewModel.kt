@@ -1,4 +1,4 @@
-package com.example.jikan
+package com.example.jikan.viewModels
 
 import androidx.lifecycle.ViewModel
 

@@ -17,7 +17,7 @@
         android:theme="@style/Theme.Jikan"
         tools:targetApi="31" >
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:exported="true"
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.Jikan.NoActionBar" >
