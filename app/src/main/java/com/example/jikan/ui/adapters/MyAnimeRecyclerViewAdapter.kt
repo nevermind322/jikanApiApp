@@ -1,9 +1,8 @@
-package com.example.jikan.ui.fragments
+package com.example.jikan.ui.adapters
 
 import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
-import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -11,7 +10,6 @@ import com.example.jikan.data.AnimeInfo
 import com.example.jikan.databinding.FragmentAnimeItemBinding
 
 import com.squareup.picasso.Picasso
-import kotlin.math.log
 
 /**
  * [RecyclerView.Adapter] that can display a [AnimeInfo].

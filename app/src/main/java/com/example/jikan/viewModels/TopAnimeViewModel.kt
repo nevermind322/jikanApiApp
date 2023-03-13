@@ -1,13 +1,11 @@
 package com.example.jikan.viewModels
 
 import androidx.lifecycle.ViewModel
-import com.example.jikan.ApiResponse
-import com.example.jikan.JikanAnimeDataSource
+import com.example.jikan.data.datasources.ApiResponse
+import com.example.jikan.data.datasources.JikanAnimeDataSource
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.data.repos.AnimeRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 
 class TopAnimeViewModel() : ViewModel(){

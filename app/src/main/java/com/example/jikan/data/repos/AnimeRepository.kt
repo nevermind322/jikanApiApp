@@ -1,9 +1,8 @@
 package com.example.jikan.data.repos
 
-import com.example.jikan.ApiResponse
-import com.example.jikan.JikanAnimeDataSource
+import com.example.jikan.data.datasources.ApiResponse
+import com.example.jikan.data.datasources.JikanAnimeDataSource
 import com.example.jikan.data.AnimeInfo
-import com.example.jikan.utils.PagedAnimeResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/topAnimeWithSearchFragment">
+    app:startDestination="@id/homeFragment">
     <fragment
         android:id="@+id/animeDetailFragment"
         android:name="com.example.jikan.ui.fragments.AnimeDetailFragment"
@@ -14,12 +14,21 @@
             app:argType="com.example.jikan.data.AnimeInfo" />
     </fragment>
     <fragment
-        android:id="@+id/topAnimeWithSearchFragment"
-        android:name="com.example.jikan.ui.fragments.TopAnimeWithSearchFragment"
-        android:layout="@layout/fragment_search_with_list"
-        android:label="TopAnimeWithSearchFragment" >
+        android:id="@+id/homeFragment"
+        android:name="com.example.jikan.ui.fragments.HomeFragment"
+        android:layout="@layout/fragment_home"
+        android:label="homeFragment"
+        tools:layout="@layout/fragment_home">
         <action
-            android:id="@+id/action_topAnimeWithSearchFragment_to_animeDetailFragment"
+            android:id="@+id/action_homeFragment_to_animeDetailFragment"
             app:destination="@id/animeDetailFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.jikan.ui.fragments.SearchFragment"
+        android:label="SearchFragment"
+        tools:layout="@layout/fragment_search"/>
 </navigation>

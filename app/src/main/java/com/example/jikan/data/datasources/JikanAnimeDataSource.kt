@@ -1,7 +1,8 @@
-package com.example.jikan
+package com.example.jikan.data.datasources
 
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.utils.NetworkClient
+import java.lang.Exception
 
 class JikanAnimeDataSource {
     fun  getAnime(id: Int): ApiResponse<AnimeInfo> {
@@ -13,10 +14,11 @@ class JikanAnimeDataSource {
             val info = try {
                 AnimeInfo(infoJson!!.data.title, infoJson.data.images.jpg.imageUrl!!, infoJson.data.synopsis!!)
             }
-            catch (e : Throwable){ return ApiResponse.Error(e)}
-            return  ApiResponse.Success(info)
+            catch (e : Throwable){ return ApiResponse.Error(e)
+            }
+            return ApiResponse.Success(info)
         }
-        return ApiResponse.Error(java.lang.Exception("Unsuccessful call: ${serverResponse.code()}"))
+        return ApiResponse.Error(Exception("Unsuccessful call: ${serverResponse.code()}"))
     }
 
     fun getTopAnime() : ApiResponse<List<AnimeInfo>> {
@@ -29,10 +31,11 @@ class JikanAnimeDataSource {
             val infoList = try {
                 infoJson!!.data.map { AnimeInfo(it.title, it.images.jpg.imageUrl, it.synopsis ?: "") }
             }
-            catch (e: Throwable) {return ApiResponse.Error(e) }
+            catch (e: Throwable) {return ApiResponse.Error(e)
+            }
             return ApiResponse.Success(infoList)
         }
-        return ApiResponse.Error(java.lang.Exception("Unsuccessful call: ${serverResponse.code()}"))
+        return ApiResponse.Error(Exception("Unsuccessful call: ${serverResponse.code()}"))
     }
 
 }

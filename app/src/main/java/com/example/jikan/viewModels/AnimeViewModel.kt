@@ -2,10 +2,9 @@ package com.example.jikan.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.jikan.ApiResponse
+import com.example.jikan.data.datasources.ApiResponse
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.data.repos.AnimeRepository
-import com.example.jikan.utils.PagedAnimeResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class AnimeViewModel(private val repository: AnimeRepository) : ViewModel() {
