@@ -2,7 +2,6 @@ package com.example.jikan.ui.fragments
 
 import android.animation.LayoutTransition
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,41 +20,33 @@ private const val ARG_PARAM1 = "info"
 class AnimeDetailFragment : Fragment() {
 
 
-    private var animeInfo: AnimeInfo? = null
+    //private var animeInfo: AnimeInfo? = null
     private var _binding: FragmentAnimeDetailBinding? = null
     private val binding get() = _binding!!
     private var expanded = false
+    private val args by navArgs<AnimeDetailFragmentArgs>()
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            animeInfo = it.getParcelable(ARG_PARAM1)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentAnimeDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.i("aa", animeInfo.toString())
         binding.apply {
             val layoutTransition = fragmentAnimeDetailConstraintLayout.layoutTransition
             layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
 
             animeDetailAnimeName.apply {
-                text = animeInfo?.Title
+                text = args.info.Title
             }
 
-            animeDetailFragmentSynopsis.text = animeInfo?.synopsis
+            animeDetailFragmentSynopsis.text = args.info.synopsis
             fragmentAnimeDetailExpandButton.setOnClickListener {
-                Log.i("button state", if (expanded) "expanded" else "collapsed")
                 if (expanded) {
                     animeDetailFragmentSynopsis.maxLines = 5
                     expanded = false
@@ -66,7 +57,7 @@ class AnimeDetailFragment : Fragment() {
                     fragmentAnimeDetailExpandButton.text = getString(R.string.fragment_anime_detail_collapse_button_label)
                 }
             }
-            Picasso.get().load(animeInfo?.imageUrl).into(animeDetailFragmentImage)
+            Picasso.get().load(args.info.imageUrl).into(animeDetailFragmentImage)
         }
     }
 

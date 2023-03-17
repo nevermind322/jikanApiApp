@@ -1,5 +1,6 @@
 package com.example.jikan.data.datasources
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.jikan.data.AnimeInfo
@@ -38,7 +39,7 @@ class JikanPagingDataSource(private val query: String, private val queries: Muta
                         )
                     },
                     prevKey = if (params.key != 1) params.key?.minus(1) else null ,
-                    nextKey = if (responseBody.pagination.hasNextPage) responseBody.pagination.lastVisiblePage + 1 else null
+                    nextKey = if (responseBody.pagination.hasNextPage) nextPageNumber + 1 else null
                 )
 
             } catch (e: Throwable) {

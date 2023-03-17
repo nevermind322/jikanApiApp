@@ -1,6 +1,5 @@
 package com.example.jikan.ui.adapters
 
-import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -33,8 +32,6 @@ class MyAnimeRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = values[position]
-        Log.i("picasso" , item.imageUrl ?: "no url")
-
         holder.apply {
             animeNameTextView.text = item.Title
             Picasso.get().load(item.imageUrl).into(animeImageView)

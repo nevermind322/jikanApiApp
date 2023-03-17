@@ -48,7 +48,6 @@ class HomeFragment : Fragment(), MyAnimeRecyclerViewAdapter.OnItemClickListener 
 
         lifecycleScope.launch {
             topAnimeViewModel.topAnimeFlow.collect {
-                Log.i("list", it.toString())
                 when (it) {
                     null -> {}
                     is TopAnimeItemState.Success -> {

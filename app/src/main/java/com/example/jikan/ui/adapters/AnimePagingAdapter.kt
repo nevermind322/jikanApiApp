@@ -9,7 +9,7 @@ import com.example.jikan.data.AnimeInfo
 import com.example.jikan.databinding.FragmentAnimeItemBinding
 import com.squareup.picasso.Picasso
 
-class AnimePagingAdapter :
+class AnimePagingAdapter(private val listener : OnItemClickListener):
     PagingDataAdapter<AnimeInfo, AnimePagingAdapter.PagingAnimeViewHolder>(MyDiffCallback) {
     object MyDiffCallback : DiffUtil.ItemCallback<AnimeInfo>() {
         override fun areItemsTheSame(oldItem: AnimeInfo, newItem: AnimeInfo): Boolean {
@@ -35,9 +35,20 @@ class AnimePagingAdapter :
         }
     }
 
+    interface OnItemClickListener {
+        fun onClick(item: AnimeInfo)
+    }
+
+
+
     override fun onBindViewHolder(holder: PagingAnimeViewHolder, position: Int) {
         val item = getItem(position)
+
+
+
         holder.bind(item)
+        if (item != null)
+            holder.itemView.setOnClickListener{listener.onClick(item)}
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PagingAnimeViewHolder {

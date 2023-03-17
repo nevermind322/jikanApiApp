@@ -9,7 +9,7 @@ import com.example.jikan.data.datasources.JikanPagingDataSource
 
 class AnimeSearchViewModel : ViewModel() {
 
-    fun searchAnime(query : String) = Pager(PagingConfig(16)) {
+    fun searchAnime(query : String) = Pager(PagingConfig(16, initialLoadSize = 16, maxSize =  128)) {
         JikanPagingDataSource(query)
     }.flow.cachedIn(viewModelScope)
 }
