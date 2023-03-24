@@ -9,7 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.GridLayoutManager
@@ -17,11 +19,17 @@ import com.example.jikan.data.AnimeInfo
 import com.example.jikan.databinding.FragmentSearchBinding
 import com.example.jikan.ui.adapters.AnimePagingAdapter
 import com.example.jikan.viewModels.AnimeSearchViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener {
 
-    val animeSearchViewModel: AnimeSearchViewModel by viewModels()
+    private val animeSearchViewModel: AnimeSearchViewModel by viewModels()
+
+    private var searchJob: Job? = null
+
     private lateinit var binding: FragmentSearchBinding
     private val mAdapter = AnimePagingAdapter(this).apply {
         this.addLoadStateListener {
@@ -36,12 +44,22 @@ class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        animeSearchViewModel.setShowed(false)
+        lifecycleScope.launch {
+            animeSearchViewModel.pagerFlow.collectLatest {
+                mAdapter.submitData(it)
+            }
+        }
+
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         binding = FragmentSearchBinding.inflate(inflater, container, false)
         with(binding.searchResult.root) {
             this.adapter = mAdapter
@@ -51,45 +69,50 @@ class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // super.onViewCreated(view, savedInstanceState)
-        if (savedInstanceState == null) init()
+        init()
     }
 
     private fun init() {
         val searchView = binding.searchAnime
-        searchView.show()
+        if (!animeSearchViewModel.isShowed()) {
+            Log.i("showing", "showing since not showed")
+            searchView.show()
+            animeSearchViewModel.setShowed(true)
+        }
         searchView.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
-
-        val textView = searchView.editText
 
         val watcher = object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-                Log.i("TextWatcher", "$this on $textView text:$s ")
-
-                lifecycleScope.launch {
-                    animeSearchViewModel.searchAnime(s.toString()).collect {
-
-                        mAdapter.submitData(it)
+                if (s != null) {
+                    searchJob?.cancel()
+                    searchJob = lifecycleScope.launch {
+                        delay(300)
+                        if (animeSearchViewModel.searchAnimeOnType(s.toString())) mAdapter.refresh()
                     }
                 }
-                val stub = 0;
             }
 
             override fun afterTextChanged(p0: Editable?) {
             }
         }
         searchView.editText.addTextChangedListener(watcher)
-        Log.i("textWatcher", "$watcher added")
         searchView.editText.setOnEditorActionListener { textView, i, keyEvent ->
+            val s = textView.text
+            searchJob?.cancel()
+            searchJob = lifecycleScope.launch {
+                delay(300)
+                animeSearchViewModel.searchAnimeOnType(s.toString())
+                mAdapter.refresh()
+            }
             true
         }
     }
+
 
     override fun onClick(item: AnimeInfo) {
         findNavController().navigate(

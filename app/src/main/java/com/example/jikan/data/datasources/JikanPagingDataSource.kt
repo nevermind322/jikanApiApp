@@ -8,22 +8,23 @@ import com.example.jikan.utils.NetworkClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class JikanPagingDataSource(private val query: String, private val queries: MutableMap<String, String> = mutableMapOf()) :
+class JikanPagingDataSource(private val query: String, private val queries: Map<String, String> = mutableMapOf()) :
     PagingSource<Int, AnimeInfo>() {
     override fun getRefreshKey(state: PagingState<Int, AnimeInfo>): Int? {
-        return state.anchorPosition?.let { anchorPosition ->
-            val anchorPage = state.closestPageToPosition(anchorPosition)
-            anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
-        }
+        return 1
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AnimeInfo> = withContext(Dispatchers.IO){
+
+        if(query == "") return@withContext LoadResult.Page(data = listOf(), prevKey = null, nextKey = null)
+
         val nextPageNumber = params.key ?: 1
-        queries += "page" to nextPageNumber.toString()
-        queries +=  "limit" to params.loadSize.toString()
+        val mutableQueries = queries.toMutableMap()
+        mutableQueries  += "page" to nextPageNumber.toString()
+        mutableQueries +=  "limit" to params.loadSize.toString()
         val serverResponse = NetworkClient.getAnimeByName(
             query,
-            queries
+            mutableQueries
         ).execute()
         val response: LoadResult<Int, AnimeInfo> = if (serverResponse.isSuccessful)
             try {
@@ -49,6 +50,5 @@ class JikanPagingDataSource(private val query: String, private val queries: Muta
             LoadResult.Error(java.lang.Exception("Unsuccessful call: ${serverResponse.code()}"))
         return@withContext response
     }
-
 
 }
