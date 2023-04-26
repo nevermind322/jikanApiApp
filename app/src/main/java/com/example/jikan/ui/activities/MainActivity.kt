@@ -2,9 +2,11 @@ package com.example.jikan.ui.activities
 
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MotionEventCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -49,11 +51,7 @@ class MainActivity : AppCompatActivity() {
             HomeFragmentDirections.actionHomeFragmentToAnimeDetailFragment(info)
 
         val navHostFragment = binding.mainNavHost.getFragment<NavHostFragment>()
-        //supportFragmentManager.findFragmentById(R.id.main_nav_host) as NavHostFragment
-
         val navController = navHostFragment.navController
-
-        Log.i("nav", "i im navigating from ${navController.currentDestination} to $direction")
         navController.navigate(direction)
     }
 

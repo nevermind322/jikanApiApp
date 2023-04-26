@@ -17,10 +17,9 @@ class AnimeSearchViewModel : ViewModel() {
     }.flow.cachedIn(viewModelScope)
 
     fun searchAnimeOnType(newQuery: String): Boolean {
-        return if (state.query != newQuery) {
-            state = state.copy(query = newQuery)
-            true
-        } else false
+        return (state.query != newQuery).also {
+            if (it) state = state.copy(query = newQuery)
+        }
     }
 
     fun setShowed(showed: Boolean) {

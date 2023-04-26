@@ -12,12 +12,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.databinding.FragmentHomeBinding
 import com.example.jikan.ui.activities.MainActivity
 import com.example.jikan.ui.adapters.MyAnimeRecyclerViewAdapter
 import com.example.jikan.viewModels.TopAnimeItemState
 import com.example.jikan.viewModels.TopAnimeViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment(), MyAnimeRecyclerViewAdapter.OnItemClickListener {
@@ -38,7 +41,7 @@ class HomeFragment : Fragment(), MyAnimeRecyclerViewAdapter.OnItemClickListener 
             goToSearchFragment()
         }
 
-        val recyclerView = binding.topAnimeRecyclerView.root
+        val recyclerView = binding.topAnimeRecyclerView.list
         with(recyclerView) {
             layoutManager = when {
                 columnCount <= 1 -> LinearLayoutManager(context)
@@ -46,6 +49,14 @@ class HomeFragment : Fragment(), MyAnimeRecyclerViewAdapter.OnItemClickListener 
             }
         }
 
+        loadTop()
+        binding.topAnimeRecyclerView.root.setOnRefreshListener { loadTop() }
+
+        return binding.root
+    }
+
+    private fun loadTop() {
+        val recyclerView = binding.topAnimeRecyclerView.list
         lifecycleScope.launch {
             topAnimeViewModel.topAnimeFlow.collect {
                 when (it) {
@@ -54,14 +65,17 @@ class HomeFragment : Fragment(), MyAnimeRecyclerViewAdapter.OnItemClickListener 
                         recyclerView.adapter =
                             MyAnimeRecyclerViewAdapter(it.list, this@HomeFragment)
                     }
+
                     is TopAnimeItemState.Error -> {
                         showError(it.error)
                     }
                 }
             }
         }
-
-        return binding.root
+        lifecycleScope.launch {
+            delay(300)
+            binding.topAnimeRecyclerView.root.isRefreshing = false
+        }
     }
 
     private fun goToSearchFragment() {
@@ -69,13 +83,15 @@ class HomeFragment : Fragment(), MyAnimeRecyclerViewAdapter.OnItemClickListener 
         findNavController().navigate(direction)
 
     }
+
     private fun showError(error: Throwable) {
         Toast.makeText(this.context, (error.message ?: "Unknown error"), Toast.LENGTH_SHORT).show()
     }
 
 
-
     override fun OnItemCLick(item: AnimeInfo) {
         (activity as MainActivity).showAnimePage(item)
     }
+
+
 }
