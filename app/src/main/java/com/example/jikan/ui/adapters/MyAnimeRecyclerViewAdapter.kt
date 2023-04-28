@@ -19,7 +19,6 @@ class MyAnimeRecyclerViewAdapter(
 ) : RecyclerView.Adapter<MyAnimeRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
         return ViewHolder(
             FragmentAnimeItemBinding.inflate(
                 LayoutInflater.from(parent.context),
@@ -27,7 +26,6 @@ class MyAnimeRecyclerViewAdapter(
                 false
             )
         )
-
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
