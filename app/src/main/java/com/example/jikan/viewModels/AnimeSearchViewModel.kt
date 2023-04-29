@@ -6,10 +6,14 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.example.jikan.data.datasources.JikanPagingDataSource
+import com.example.jikan.data.repos.SearchQueryRepo
+import com.example.jikan.db.Entities.SearchQuery
 
-class AnimeSearchViewModel : ViewModel() {
+class AnimeSearchViewModel(private val searchQueryRepo : SearchQueryRepo) : ViewModel() {
 
     private var state: SearchState = SearchState("")
+
+
 
     val pagerFlow = Pager(PagingConfig(16, initialLoadSize = 16, maxSize = 128)) {
         JikanPagingDataSource(state.query, state.params)

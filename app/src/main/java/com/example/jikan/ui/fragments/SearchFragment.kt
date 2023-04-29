@@ -61,7 +61,6 @@ class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener,
         lifecycleScope.launch {
             animeSearchViewModel.pagerFlow.collectLatest {
                 animeAdapter.submitData(it)
-                Log.i("refresh", "submitted")
             }
         }
 
@@ -70,9 +69,6 @@ class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener,
                 withContext(Dispatchers.IO) {
                     val db = (activity?.application as JikanApp).db
                     val l = db.searchQueryDao().getAll()
-
-
-
                     values.addAll(l.map {
                         SearchQueryAdapter.SearchQueryState(
                             it.query,
@@ -130,7 +126,6 @@ class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener,
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                Log.i("tag", s.toString())
                 if (s != null && s.toString() != "") {
                     with(binding.searchResult.list) {
                         adapter = animeAdapter
@@ -142,7 +137,6 @@ class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener,
                         if (animeSearchViewModel.searchAnimeOnType(s.toString())) animeAdapter.refresh()
                     }
                 } else if (s.toString() == "") {
-                    Log.i("tag", "here")
                     with(binding.searchResult.list) {
                         adapter = searchQueriesAdapter
                         layoutManager = LinearLayoutManager(this@SearchFragment.context)

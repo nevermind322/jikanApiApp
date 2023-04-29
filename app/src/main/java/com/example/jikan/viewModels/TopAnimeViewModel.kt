@@ -17,7 +17,6 @@ class TopAnimeViewModel() : ViewModel(){
         when (res){
             is ApiResponse.Success -> emit(TopAnimeItemState.Success(res.info))
             is ApiResponse.Error -> emit(TopAnimeItemState.Error(res.error))
-            else -> {}
         }}
 }
 
