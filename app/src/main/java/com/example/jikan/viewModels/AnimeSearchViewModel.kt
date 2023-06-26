@@ -9,7 +9,7 @@ import com.example.jikan.data.datasources.JikanPagingDataSource
 import com.example.jikan.data.repos.SearchQueryRepo
 import com.example.jikan.db.Entities.SearchQuery
 
-class AnimeSearchViewModel(private val searchQueryRepo : SearchQueryRepo) : ViewModel() {
+class AnimeSearchViewModel() : ViewModel() {
 
     private var state: SearchState = SearchState("")
 
