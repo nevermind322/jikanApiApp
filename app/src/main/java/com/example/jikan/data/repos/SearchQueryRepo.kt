@@ -1,9 +1,9 @@
 package com.example.jikan.data.repos
 
 import com.example.jikan.data.datasources.SearchQueryDataSource
-import com.example.jikan.db.Entities.SearchQuery
+import javax.inject.Inject
 
-class SearchQueryRepo(val searchQueryDataSource: SearchQueryDataSource) {
+class SearchQueryRepo @Inject constructor(private val searchQueryDataSource: SearchQueryDataSource) {
 
     suspend fun getAll() : List<String> = searchQueryDataSource.getAll()
 

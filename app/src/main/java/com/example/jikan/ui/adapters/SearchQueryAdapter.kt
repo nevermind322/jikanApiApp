@@ -6,9 +6,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.jikan.databinding.FragmentAnimeItemBinding
 import com.example.jikan.databinding.SearchQueryItemBinding
+import com.example.jikan.viewModels.SearchQueryState
 
 
-class SearchQueryAdapter(val values: MutableList<SearchQueryState>) :
+class SearchQueryAdapter(val values: MutableList<SearchQueryState> = mutableListOf()) :
     RecyclerView.Adapter<SearchQueryAdapter.SearchQueryViewHolder>() {
     inner class SearchQueryViewHolder(val binding: SearchQueryItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -42,5 +43,4 @@ class SearchQueryAdapter(val values: MutableList<SearchQueryState>) :
         holder.bind(values[position])
     }
 
-    class SearchQueryState(val query: String, val onClick: () -> Unit, val onLongClick: () -> Unit)
 }

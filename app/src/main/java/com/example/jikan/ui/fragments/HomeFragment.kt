@@ -12,17 +12,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.databinding.FragmentHomeBinding
 import com.example.jikan.ui.activities.MainActivity
 import com.example.jikan.ui.adapters.MyAnimeRecyclerViewAdapter
 import com.example.jikan.viewModels.TopAnimeItemState
 import com.example.jikan.viewModels.TopAnimeViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
+@AndroidEntryPoint
 class HomeFragment : Fragment(), MyAnimeRecyclerViewAdapter.OnItemClickListener {
 
     private lateinit var binding: FragmentHomeBinding
@@ -50,6 +49,7 @@ class HomeFragment : Fragment(), MyAnimeRecyclerViewAdapter.OnItemClickListener 
         }
 
         loadTop()
+        Log.d("fragment", "loading")
         binding.topAnimeRecyclerView.root.setOnRefreshListener { loadTop() }
 
         return binding.root

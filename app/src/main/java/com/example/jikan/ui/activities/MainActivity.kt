@@ -7,7 +7,9 @@ import androidx.navigation.fragment.NavHostFragment
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.databinding.ActivityMainBinding
 import com.example.jikan.ui.fragments.HomeFragmentDirections
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding

@@ -18,10 +18,12 @@ interface AnimeService {
         @Query("q") name: String,
         @QueryMap queries: Map<String, String>
     ): Call<PagedAnimeResponse>
+
     @GET("top/anime")
-    fun getTopAnime(@QueryMap queries : Map<String, String>) : Call<PagedAnimeResponse>
+    fun getTopAnime(@QueryMap queries: Map<String, String>): Call<PagedAnimeResponse>
 }
-object NetworkClient {
+
+object NetworkClient : AnimeService {
 
     private val gson = GsonBuilder().create()
 
@@ -32,11 +34,13 @@ object NetworkClient {
 
     private val apiService = retrofit.create(AnimeService::class.java)
 
-    fun findAnimeById(id: Int) =
+    override fun getAnimeById(id: Int) =
         apiService.getAnimeById(id)
 
-    fun getAnimeByName(name: String , queries : Map<String, String> = mapOf()) = apiService.searchAnimeByName(name, queries)
+    override fun searchAnimeByName(name: String, queries: Map<String, String>) =
+        apiService.searchAnimeByName(name, queries)
 
-    fun getTopAnime(queries : Map<String, String> = mapOf()) = apiService.getTopAnime(queries)
+    override fun getTopAnime(queries: Map<String, String>) =
+        apiService.getTopAnime(queries)
 
 }

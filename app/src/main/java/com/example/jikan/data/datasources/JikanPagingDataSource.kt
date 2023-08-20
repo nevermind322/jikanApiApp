@@ -4,15 +4,23 @@ import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.jikan.data.AnimeInfo
+import com.example.jikan.utils.AnimeService
 import com.example.jikan.utils.NetworkClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 class JikanPagingDataSource(private val query: String, private val queries: Map<String, String> = mutableMapOf()) :
     PagingSource<Int, AnimeInfo>() {
-    override fun getRefreshKey(state: PagingState<Int, AnimeInfo>): Int? {
+
+
+     val netClient : AnimeService = NetworkClient
+
+    override fun getRefreshKey(state: PagingState<Int, AnimeInfo>): Int {
         return 1
     }
+
+
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AnimeInfo> = withContext(Dispatchers.IO){
 
@@ -22,7 +30,7 @@ class JikanPagingDataSource(private val query: String, private val queries: Map<
         val mutableQueries = queries.toMutableMap()
         mutableQueries  += "page" to nextPageNumber.toString()
         mutableQueries +=  "limit" to params.loadSize.toString()
-        val serverResponse = NetworkClient.getAnimeByName(
+        val serverResponse = netClient.searchAnimeByName(
             query,
             mutableQueries
         ).execute()

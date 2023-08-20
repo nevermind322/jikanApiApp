@@ -3,11 +3,9 @@ package com.example.jikan.ui.fragments
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -16,21 +14,19 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.jikan.JikanApp
 import com.example.jikan.R
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.databinding.FragmentSearchBinding
-import com.example.jikan.db.Entities.SearchQuery
 import com.example.jikan.ui.adapters.AnimePagingAdapter
 import com.example.jikan.ui.adapters.SearchQueryAdapter
 import com.example.jikan.viewModels.AnimeSearchViewModel
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
+@AndroidEntryPoint
 class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener,
     SwipeRefreshLayout.OnRefreshListener {
 
@@ -53,7 +49,7 @@ class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener,
     }
 
     private val searchQueriesAdapter =
-        SearchQueryAdapter(listOf<SearchQueryAdapter.SearchQueryState>().toMutableList())
+        SearchQueryAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,31 +60,11 @@ class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener,
             }
         }
 
-        searchQueriesAdapter.apply {
-            lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
-                    val db = (activity?.application as JikanApp).db
-                    val l = db.searchQueryDao().getAll()
-                    values.addAll(l.map {
-                        SearchQueryAdapter.SearchQueryState(
-                            it.query,
-                            {
-                                lifecycleScope.launch {
-                                    db.searchQueryDao().delete(it)
-                                }
+        lifecycleScope.launch {
+            val l = animeSearchViewModel.getQueries()
 
-                            },
-                            {
-                                Toast.makeText(
-                                    this@SearchFragment.context,
-                                    "${it.query} long clicked!",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            })
-                    })
-                    notifyDataSetChanged()
-                }
-            }
+            searchQueriesAdapter.values.addAll(l)
+            searchQueriesAdapter.notifyDataSetChanged()
         }
     }
 
@@ -152,11 +128,9 @@ class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener,
         searchView.editText.setOnEditorActionListener { textView, i, keyEvent ->
             val s = textView.text
             lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
-                    (activity?.application as JikanApp).db.searchQueryDao()
-                        .insertAll(SearchQuery(s.toString()))
-                }
+                        animeSearchViewModel.insertQuery(s.toString())
             }
+
             searchJob?.cancel()
             searchJob = lifecycleScope.launch {
                 delay(300)

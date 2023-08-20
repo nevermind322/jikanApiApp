@@ -1,13 +1,14 @@
 package com.example.jikan.data.datasources
 
 import com.example.jikan.data.AnimeInfo
-import com.example.jikan.utils.NetworkClient
+import com.example.jikan.utils.AnimeService
 import java.lang.Exception
+import javax.inject.Inject
 
-class JikanAnimeDataSource {
+class JikanAnimeDataSource @Inject constructor ( private val animeService: AnimeService) {
     fun  getAnime(id: Int): ApiResponse<AnimeInfo> {
 
-        val call = NetworkClient.findAnimeById(id)
+        val call = animeService.getAnimeById(id)
         val serverResponse = call.execute()
         if (serverResponse.isSuccessful) {
             val infoJson = serverResponse.body()
@@ -23,7 +24,7 @@ class JikanAnimeDataSource {
 
     fun getTopAnime() : ApiResponse<List<AnimeInfo>> {
 
-        val call = NetworkClient.getTopAnime()
+        val call = animeService.getTopAnime(mapOf())
         val serverResponse = call.execute()
 
         if(serverResponse.isSuccessful){
