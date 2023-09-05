@@ -8,7 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.GridLayoutManager
@@ -60,11 +62,13 @@ class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener,
             }
         }
 
+
         lifecycleScope.launch {
             val l = animeSearchViewModel.getQueries()
 
             searchQueriesAdapter.values.addAll(l)
             searchQueriesAdapter.notifyDataSetChanged()
+
         }
     }
 
@@ -113,6 +117,13 @@ class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener,
                         if (animeSearchViewModel.searchAnimeOnType(s.toString())) animeAdapter.refresh()
                     }
                 } else if (s.toString() == "") {
+                    lifecycleScope.launch {
+                        val l = animeSearchViewModel.getQueries()
+                        searchQueriesAdapter.values.clear()
+                        searchQueriesAdapter.values.addAll(l)
+                        searchQueriesAdapter.notifyDataSetChanged()
+
+                    }
                     with(binding.searchResult.list) {
                         adapter = searchQueriesAdapter
                         layoutManager = LinearLayoutManager(this@SearchFragment.context)
@@ -128,7 +139,7 @@ class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener,
         searchView.editText.setOnEditorActionListener { textView, i, keyEvent ->
             val s = textView.text
             lifecycleScope.launch {
-                        animeSearchViewModel.insertQuery(s.toString())
+                animeSearchViewModel.insertQuery(s.toString())
             }
 
             searchJob?.cancel()

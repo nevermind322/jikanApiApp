@@ -8,6 +8,7 @@ import androidx.paging.cachedIn
 import com.example.jikan.data.datasources.JikanPagingDataSource
 import com.example.jikan.data.repos.SearchQueryRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,16 +29,15 @@ class AnimeSearchViewModel @Inject constructor(private val searchRepo: SearchQue
         }
     }
 
-    suspend fun getQueries(): List<SearchQueryState> =
-        searchRepo.getAll().map {
-            SearchQueryState(it,
-                { viewModelScope.launch { searchRepo.deleteQuery(it) } },
-                {})
-        }
+    suspend fun getQueries(): List<SearchQueryState> = searchRepo.getAll().map {
+        SearchQueryState(it, { viewModelScope.launch { searchRepo.deleteQuery(it) } }, {})
+    }
 
     suspend fun insertQuery(query: String) {
         searchRepo.addQuery(query)
+
     }
+
     fun setShowed(showed: Boolean) {
         state = state.copy(shown = showed)
     }
@@ -47,13 +47,9 @@ class AnimeSearchViewModel @Inject constructor(private val searchRepo: SearchQue
 }
 
 data class SearchState(
-    val query: String,
-    val params: Map<String, String> = mapOf(),
-    val shown: Boolean = false
+    val query: String, val params: Map<String, String> = mapOf(), val shown: Boolean = false
 )
 
 class SearchQueryState(
-    val query: String,
-    val onClick: () -> Unit,
-    val onLongClick: () -> Unit
+    val query: String, val onClick: () -> Unit, val onLongClick: () -> Unit
 )
