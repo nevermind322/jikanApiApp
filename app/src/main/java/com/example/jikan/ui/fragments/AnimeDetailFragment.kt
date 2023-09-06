@@ -12,6 +12,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
@@ -47,7 +49,6 @@ class AnimeDetailFragment : Fragment() {
     //private var animeInfo: AnimeInfo? = null
     private var _binding: FragmentAnimeDetailBinding? = null
     private val binding get() = _binding!!
-    private var expanded = false
     private val args by navArgs<AnimeDetailFragmentArgs>()
 
 
@@ -62,8 +63,8 @@ class AnimeDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.animeDetailAnimeDesc.setContent {
             Column {
-                NetworkImage(url = args.info.imageUrl!!, modifier = Modifier.fillMaxWidth())
-                Text(text = args.info.Title)
+                NetworkImage(url = args.info.imageUrl!!, modifier = Modifier.fillMaxWidth().height(300.dp))
+                Text(text = args.info.Title, color = Color.White)
                 TextWithExpandButton(text = args.info.synopsis)
             }
 
@@ -183,4 +184,5 @@ fun TextWithExpandButton(text: String) {
         }
     }
 }
+
 
