@@ -7,6 +7,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -27,7 +30,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Constraints
@@ -151,16 +153,15 @@ fun TextWithExpandButton(text: String) {
                 ExpandableTextState(lines = 6, expanded = false)
             )
         }
-        val style = remember { TextStyle(color = Color.Yellow, fontSize = 12.sp) }
+        val style = remember { TextStyle(color = Color.Yellow, fontSize = 18.sp) }
         val textMeasurer = rememberTextMeasurer()
 
-        BoxWithConstraints {
+        BoxWithConstraints(modifier = Modifier.animateContentSize(animationSpec = tween(1000, easing = LinearEasing))) {
             val measureResult = textMeasurer.measure(
                 text,
                 style = style,
                 constraints = Constraints(maxWidth = constraints.maxWidth)
             )
-            Log.wtf("text lines", "${measureResult.lineCount}")
             button = measureResult.lineCount > 6
             Text(
                 text = text,
