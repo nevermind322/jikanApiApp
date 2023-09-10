@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class TopAnimeViewModel  @Inject constructor(private val repo: AnimeRepository ) : ViewModel() {
 
-    val topAnimeFlow: Flow<TopAnimeItemState?> = flow {
+    val topAnimeFlow: Flow<TopAnimeItemState> = flow {
         when (val res = repo.getTopAnime()) {
             is ApiResponse.Success -> emit(TopAnimeItemState.Success(res.info))
             is ApiResponse.Error -> emit(TopAnimeItemState.Error(res.error))
@@ -26,6 +26,7 @@ class TopAnimeViewModel  @Inject constructor(private val repo: AnimeRepository )
 
 
 sealed class TopAnimeItemState {
+    object Loading : TopAnimeItemState()
     data class Success(val list: List<AnimeInfo>) : TopAnimeItemState()
     data class Error(val error: Throwable) : TopAnimeItemState()
 }

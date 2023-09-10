@@ -29,15 +29,6 @@ class MainActivity : AppCompatActivity() {
         val navController = navHostFragment.navController
         navController.navigate(direction)
     }
-
-    private fun showError(error: Throwable) {
-        makeToast(error.message)
-    }
-
-    private fun makeToast(message: String?) {
-        val toast = Toast.makeText(this, message ?: "Unknown error", Toast.LENGTH_LONG)
-        toast.show()
-    }
 }
 
 

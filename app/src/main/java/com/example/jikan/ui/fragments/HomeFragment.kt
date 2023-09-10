@@ -6,27 +6,54 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.compose.JikanTheme
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.databinding.FragmentHomeBinding
 import com.example.jikan.ui.activities.MainActivity
-import com.example.jikan.ui.adapters.MyAnimeRecyclerViewAdapter
 import com.example.jikan.viewModels.TopAnimeItemState
 import com.example.jikan.viewModels.TopAnimeViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+
 @AndroidEntryPoint
-class HomeFragment : Fragment(), MyAnimeRecyclerViewAdapter.OnItemClickListener {
+class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
-    private var columnCount = 2
-    private val topAnimeViewModel: TopAnimeViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,48 +62,33 @@ class HomeFragment : Fragment(), MyAnimeRecyclerViewAdapter.OnItemClickListener 
     ): View {
 
         binding = FragmentHomeBinding.inflate(inflater, container, false)
+        binding.topAnimeComposeView.setContent {
+            JikanTheme {
+                Column {
+                    Surface(
+                        modifier = Modifier
 
-        binding.searchBar.setOnClickListener {
-            goToSearchFragment()
-        }
-
-        val recyclerView = binding.topAnimeRecyclerView.list
-        with(recyclerView) {
-            layoutManager = when {
-                columnCount <= 1 -> LinearLayoutManager(context)
-                else -> GridLayoutManager(context, columnCount)
-            }
-        }
-
-        loadTop()
-        Log.d("fragment", "loading")
-        binding.topAnimeRecyclerView.root.setOnRefreshListener { loadTop() }
-
-        return binding.root
-    }
-
-    private fun loadTop() {
-        val recyclerView = binding.topAnimeRecyclerView.list
-        lifecycleScope.launch {
-            topAnimeViewModel.topAnimeFlow.collect {
-                when (it) {
-                    null -> {}
-                    is TopAnimeItemState.Success -> {
-                        recyclerView.adapter =
-                            MyAnimeRecyclerViewAdapter(it.list, this@HomeFragment)
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp).clip(RoundedCornerShape(16.dp))
+                            .clickable { goToSearchFragment() },
+                    ) {
+                        Row(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
+                            Icon(Icons.Default.Search, contentDescription = "Search bar")
+                            Text(text = "Search")
+                        }
                     }
 
-                    is TopAnimeItemState.Error -> {
-                        showError(it.error)
+                    TopAnimeList(viewModel = viewModel()) {
+                        (activity as MainActivity).showAnimePage(
+                            it
+                        )
                     }
                 }
             }
         }
-        lifecycleScope.launch {
-            delay(300)
-            binding.topAnimeRecyclerView.root.isRefreshing = false
-        }
+        return binding.root
     }
+
 
     private fun goToSearchFragment() {
         val direction = HomeFragmentDirections.actionHomeFragmentToSearchFragment()
@@ -84,14 +96,41 @@ class HomeFragment : Fragment(), MyAnimeRecyclerViewAdapter.OnItemClickListener 
 
     }
 
-    private fun showError(error: Throwable) {
-        Toast.makeText(this.context, (error.message ?: "Unknown error"), Toast.LENGTH_SHORT).show()
+}
+
+@Composable
+fun TopAnimeList(viewModel: TopAnimeViewModel, onItemClick: (AnimeInfo) -> Unit) {
+
+    val uiState by viewModel.topAnimeFlow.collectAsState(initial = TopAnimeItemState.Loading)
+
+    when (uiState) {
+        is TopAnimeItemState.Loading -> Text(text = "Loading")
+        is TopAnimeItemState.Error -> Text(text = "Error: ${(uiState as TopAnimeItemState.Error).error.message}")
+        is TopAnimeItemState.Success -> {
+            val data = (uiState as TopAnimeItemState.Success).list
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                items(data, key = { it.Title }) { AnimeItem(info = it) { onItemClick(it) } }
+            }
+        }
     }
 
 
-    override fun OnItemCLick(item: AnimeInfo) {
-        (activity as MainActivity).showAnimePage(item)
-    }
+}
 
+@Composable
+fun AnimeItem(info: AnimeInfo, onClick: () -> Unit) {
+
+    Column(Modifier.clickable(onClick = onClick)) {
+        NetworkImage(
+            url = info.imageUrl!!, modifier = Modifier
+                .fillMaxWidth()
+                .height(250.dp)
+        )
+        Text(text = info.Title, color = Color.White)
+    }
 
 }
