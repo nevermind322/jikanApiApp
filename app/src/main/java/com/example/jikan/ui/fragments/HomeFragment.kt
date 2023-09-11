@@ -1,13 +1,10 @@
 package com.example.jikan.ui.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,33 +17,24 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.fragment.findNavController
 import com.example.compose.JikanTheme
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.databinding.FragmentHomeBinding
 import com.example.jikan.ui.activities.MainActivity
-import com.example.jikan.viewModels.TopAnimeItemState
+import com.example.jikan.viewModels.TopAnimeItemsState
 import com.example.jikan.viewModels.TopAnimeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -69,7 +57,8 @@ class HomeFragment : Fragment() {
                         modifier = Modifier
 
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp).clip(RoundedCornerShape(16.dp))
+                            .padding(horizontal = 16.dp)
+                            .clip(RoundedCornerShape(16.dp))
                             .clickable { goToSearchFragment() },
                     ) {
                         Row(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
@@ -99,38 +88,47 @@ class HomeFragment : Fragment() {
 }
 
 @Composable
-fun TopAnimeList(viewModel: TopAnimeViewModel, onItemClick: (AnimeInfo) -> Unit) {
+fun TopAnimeList(viewModel: TopAnimeViewModel, onClick: (AnimeInfo) -> Unit) {
 
-    val uiState by viewModel.topAnimeFlow.collectAsState(initial = TopAnimeItemState.Loading)
+    val uiState by viewModel.topAnimeFlow.collectAsState(initial = TopAnimeItemsState.Loading)
 
     when (uiState) {
-        is TopAnimeItemState.Loading -> Text(text = "Loading")
-        is TopAnimeItemState.Error -> Text(text = "Error: ${(uiState as TopAnimeItemState.Error).error.message}")
-        is TopAnimeItemState.Success -> {
-            val data = (uiState as TopAnimeItemState.Success).list
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(top = 8.dp)
-            ) {
-                items(data, key = { it.Title }) { AnimeItem(info = it) { onItemClick(it) } }
-            }
+        is TopAnimeItemsState.Loading -> Text(text = "Loading")
+        is TopAnimeItemsState.Error -> Text(text = "Error: ${(uiState as TopAnimeItemsState.Error).error.message}")
+        is TopAnimeItemsState.Success -> {
+            val data = (uiState as TopAnimeItemsState.Success).list
+            AnimeItemList(data.map { AnimeListElementUiState(it) { onClick(it) } })
         }
     }
 
 
 }
 
-@Composable
-fun AnimeItem(info: AnimeInfo, onClick: () -> Unit) {
+data class AnimeListElementUiState(val info: AnimeInfo, val onClick: () -> Unit)
 
-    Column(Modifier.clickable(onClick = onClick)) {
+@Composable
+private fun AnimeItemList(
+    data: List<AnimeListElementUiState>
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.padding(top = 8.dp)
+    ) {
+        items(data, key = { it.info.Title }) { AnimeItem(it) }
+    }
+}
+
+@Composable
+fun AnimeItem(state: AnimeListElementUiState) {
+
+    Column(Modifier.clickable(onClick = state.onClick)) {
         NetworkImage(
-            url = info.imageUrl!!, modifier = Modifier
+            url = state.info.imageUrl!!, modifier = Modifier
                 .fillMaxWidth()
                 .height(250.dp)
         )
-        Text(text = info.Title, color = Color.White)
+        Text(text = state.info.Title, color = Color.White)
     }
 
 }

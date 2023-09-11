@@ -1,172 +1,136 @@
 package com.example.jikan.ui.fragments
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.jikan.R
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
+import com.example.compose.JikanTheme
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.databinding.FragmentSearchBinding
-import com.example.jikan.ui.adapters.AnimePagingAdapter
-import com.example.jikan.ui.adapters.SearchQueryAdapter
 import com.example.jikan.viewModels.AnimeSearchViewModel
+import com.example.jikan.viewModels.SearchQueryState
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
+
 
 @AndroidEntryPoint
-class SearchFragment : Fragment(), AnimePagingAdapter.OnItemClickListener,
-    SwipeRefreshLayout.OnRefreshListener {
+class SearchFragment : Fragment() {
 
     private val animeSearchViewModel: AnimeSearchViewModel by viewModels()
-
-    private var searchJob: Job? = null
-
     private lateinit var binding: FragmentSearchBinding
-    private val animeAdapter = AnimePagingAdapter(this).apply {
-        this.addLoadStateListener {
-            when (it.prepend) {
-                is LoadState.Error -> retry()
-                else -> {}
-            }
-            when (it.append) {
-                is LoadState.Error -> retry()
-                else -> {}
-            }
-        }
-    }
-
-    private val searchQueriesAdapter =
-        SearchQueryAdapter()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        animeSearchViewModel.setShowed(false)
-        lifecycleScope.launch {
-            animeSearchViewModel.pagerFlow.collectLatest {
-                animeAdapter.submitData(it)
-            }
-        }
-
-
-        lifecycleScope.launch {
-            val l = animeSearchViewModel.getQueries()
-
-            searchQueriesAdapter.values.addAll(l)
-            searchQueriesAdapter.notifyDataSetChanged()
-
-        }
-    }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentSearchBinding.inflate(inflater, container, false)
-        with(binding.searchResult.list) {
-            adapter = searchQueriesAdapter
-            layoutManager = LinearLayoutManager(this@SearchFragment.context)
+        binding.searchResult.setContent {
+            JikanTheme {
+                SearchScreen(vm = animeSearchViewModel, onClick = ::goToDetail)
+            }
         }
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        init()
-    }
-
-    private fun init() {
-        val searchView = binding.searchAnime
-        searchView.inflateMenu(R.menu.filters)
-
-        if (!animeSearchViewModel.isShowed()) {
-            searchView.show()
-            animeSearchViewModel.setShowed(true)
-        }
-
-        searchView.toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
-
-        val watcher = object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (s != null && s.toString() != "") {
-                    with(binding.searchResult.list) {
-                        adapter = animeAdapter
-                        layoutManager = GridLayoutManager(this@SearchFragment.context, 2)
-                    }
-                    searchJob?.cancel()
-                    searchJob = lifecycleScope.launch {
-                        delay(300)
-                        if (animeSearchViewModel.searchAnimeOnType(s.toString())) animeAdapter.refresh()
-                    }
-                } else if (s.toString() == "") {
-                    lifecycleScope.launch {
-                        val l = animeSearchViewModel.getQueries()
-                        searchQueriesAdapter.values.clear()
-                        searchQueriesAdapter.values.addAll(l)
-                        searchQueriesAdapter.notifyDataSetChanged()
-
-                    }
-                    with(binding.searchResult.list) {
-                        adapter = searchQueriesAdapter
-                        layoutManager = LinearLayoutManager(this@SearchFragment.context)
-                    }
-                }
-            }
-
-            override fun afterTextChanged(p0: Editable?) {}
-        }
-
-        searchView.editText.addTextChangedListener(watcher)
-
-        searchView.editText.setOnEditorActionListener { textView, i, keyEvent ->
-            val s = textView.text
-            lifecycleScope.launch {
-                animeSearchViewModel.insertQuery(s.toString())
-            }
-
-            searchJob?.cancel()
-            searchJob = lifecycleScope.launch {
-                delay(300)
-                animeSearchViewModel.searchAnimeOnType(s.toString())
-                animeAdapter.refresh()
-            }
-            true
-        }
-
-        binding.searchResult.root.setOnRefreshListener(this)
-
-    }
-
-
-    override fun onClick(item: AnimeInfo) {
+    private fun goToDetail(item: AnimeInfo) {
         findNavController().navigate(
             SearchFragmentDirections.actionSearchFragmentToAnimeDetailFragment(item)
         )
     }
+}
 
-    override fun onRefresh() {
-        animeAdapter.refresh()
-        lifecycleScope.launch {
-            delay(300)
-            binding.searchResult.root.isRefreshing = false
+@Composable
+fun SearchHint(state: SearchQueryState) {
+    Row(modifier = Modifier.clickable(onClick = state.onClick)) {
+        Icon(
+            Icons.Default.Clear,
+            contentDescription = "delete hint",
+            modifier = Modifier.clickable(onClick = state.onDeleteClick)
+        )
+        Text(state.query)
+    }
+}
+
+@Composable
+fun QueryHintList(list: List<SearchQueryState>) {
+    LazyColumn {
+        items(list, key = { it.query }) { SearchHint(state = it) }
+    }
+}
+
+@Composable
+fun AnimeSearchResultList(pagingData: LazyPagingItems<AnimeInfo>, onClick: (AnimeInfo) -> Unit) {
+Log.wtf("compose", "animeSearcgList")
+    pagingData.loadState.also {
+        when (it.prepend) {
+            is LoadState.Error -> pagingData.retry()
+            else -> {}
         }
+        when (it.append) {
+            is LoadState.Error -> pagingData.retry()
+            else -> {}
+        }
+    }
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.padding(top = 8.dp)
+    ) {
+        items(pagingData.itemCount, key = pagingData.itemKey { it.Title }) {
+            val el = pagingData[it]!!
+            AnimeItem(state = AnimeListElementUiState(el) { onClick(el) })
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchScreen(vm: AnimeSearchViewModel, onClick: (AnimeInfo) -> Unit) {
+
+    var query by remember { mutableStateOf("") }
+    val pagingData = vm.pagingFlow.collectAsLazyPagingItems()
+    val list by vm.queriesFlow.collectAsState(initial = emptyList())
+    var searchPressed by remember { mutableStateOf(false) }
+    SearchBar(query = query, onQueryChange = { query = it; if (query=="") searchPressed = false  }, onSearch = {
+        if (vm.searchAnime(it)) pagingData.refresh()
+        searchPressed = true
+    }, active = true, onActiveChange = { }) {
+        if (searchPressed && query != "") AnimeSearchResultList(
+            pagingData = pagingData,
+            onClick = onClick
+        )
+        else QueryHintList(list)
     }
 }

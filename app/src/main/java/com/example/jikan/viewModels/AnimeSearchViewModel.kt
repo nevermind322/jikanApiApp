@@ -8,7 +8,12 @@ import androidx.paging.cachedIn
 import com.example.jikan.data.datasources.JikanPagingDataSource
 import com.example.jikan.data.repos.SearchQueryRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,9 +24,15 @@ class AnimeSearchViewModel @Inject constructor(private val searchRepo: SearchQue
     private var state: SearchState = SearchState("")
 
 
-    val pagerFlow = Pager(PagingConfig(16, initialLoadSize = 16, maxSize = 128)) {
+    val pagingFlow = Pager(PagingConfig(16, initialLoadSize = 16, maxSize = 128)) {
         JikanPagingDataSource(state.query, state.params)
     }.flow.cachedIn(viewModelScope)
+
+    val queriesFlow  = MutableStateFlow(emptyList<SearchQueryState>())
+
+    init {
+        viewModelScope.launch { queriesFlow.emit(getQueries()) }
+    }
 
     fun searchAnimeOnType(newQuery: String): Boolean {
         return (state.query != newQuery).also {
@@ -29,20 +40,22 @@ class AnimeSearchViewModel @Inject constructor(private val searchRepo: SearchQue
         }
     }
 
-    suspend fun getQueries(): List<SearchQueryState> = searchRepo.getAll().map {
+    fun searchAnime(newQuery: String) : Boolean{
+        viewModelScope.launch {
+            insertQuery(newQuery)
+            queriesFlow.emit(getQueries())
+        }
+        return searchAnimeOnType(newQuery)
+    }
+
+    private suspend fun getQueries(): List<SearchQueryState> = searchRepo.getAll().map {
         SearchQueryState(it, { viewModelScope.launch { searchRepo.deleteQuery(it) } }, {})
     }
 
     suspend fun insertQuery(query: String) {
         searchRepo.addQuery(query)
-
     }
 
-    fun setShowed(showed: Boolean) {
-        state = state.copy(shown = showed)
-    }
-
-    fun isShowed() = state.shown
 
 }
 
@@ -50,6 +63,6 @@ data class SearchState(
     val query: String, val params: Map<String, String> = mapOf(), val shown: Boolean = false
 )
 
-class SearchQueryState(
-    val query: String, val onClick: () -> Unit, val onLongClick: () -> Unit
+data class SearchQueryState(
+    val query: String, val onClick: () -> Unit, val onDeleteClick: () -> Unit
 )
