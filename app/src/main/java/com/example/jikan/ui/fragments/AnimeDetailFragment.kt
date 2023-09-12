@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Constraints
@@ -38,7 +39,6 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.example.jikan.data.AnimeInfo
-import com.example.jikan.databinding.FragmentAnimeDetailBinding
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import java.lang.Exception
@@ -47,39 +47,23 @@ private const val ARG_PARAM1 = "info"
 
 class AnimeDetailFragment : Fragment() {
 
-
-    //private var animeInfo: AnimeInfo? = null
-    private var _binding: FragmentAnimeDetailBinding? = null
-    private val binding get() = _binding!!
     private val args by navArgs<AnimeDetailFragmentArgs>()
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentAnimeDetailBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding.animeDetailAnimeDesc.setContent {
+    ): View = ComposeView(requireContext()).apply {
+        setContent {
             Column {
-                NetworkImage(url = args.info.imageUrl!!, modifier = Modifier.fillMaxWidth().height(300.dp))
+                NetworkImage(
+                    url = args.info.imageUrl!!,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                )
                 Text(text = args.info.Title, color = Color.White)
                 TextWithExpandButton(text = args.info.synopsis)
             }
-
         }
     }
-
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-
     companion object {
         /**
          * Use this factory method to create a new instance of
@@ -156,7 +140,14 @@ fun TextWithExpandButton(text: String) {
         val style = remember { TextStyle(color = Color.Yellow, fontSize = 18.sp) }
         val textMeasurer = rememberTextMeasurer()
 
-        BoxWithConstraints(modifier = Modifier.animateContentSize(animationSpec = tween(1000, easing = LinearEasing))) {
+        BoxWithConstraints(
+            modifier = Modifier.animateContentSize(
+                animationSpec = tween(
+                    1000,
+                    easing = LinearEasing
+                )
+            )
+        ) {
             val measureResult = textMeasurer.measure(
                 text,
                 style = style,

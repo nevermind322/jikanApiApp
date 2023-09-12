@@ -26,13 +26,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.fragment.findNavController
 import com.example.compose.JikanTheme
 import com.example.jikan.data.AnimeInfo
-import com.example.jikan.databinding.FragmentHomeBinding
 import com.example.jikan.ui.activities.MainActivity
 import com.example.jikan.viewModels.TopAnimeItemsState
 import com.example.jikan.viewModels.TopAnimeViewModel
@@ -41,21 +41,16 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
 
-    private lateinit var binding: FragmentHomeBinding
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
-        binding.topAnimeComposeView.setContent {
+    ): View = ComposeView(requireContext()).apply {
+        setContent {
             JikanTheme {
                 Column {
                     Surface(
                         modifier = Modifier
-
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                             .clip(RoundedCornerShape(16.dp))
@@ -66,25 +61,17 @@ class HomeFragment : Fragment() {
                             Text(text = "Search")
                         }
                     }
-
-                    TopAnimeList(viewModel = viewModel()) {
-                        (activity as MainActivity).showAnimePage(
-                            it
-                        )
-                    }
+                    TopAnimeList(viewModel = viewModel()) { (activity as MainActivity).showAnimePage(it) }
                 }
             }
         }
-        return binding.root
     }
 
 
     private fun goToSearchFragment() {
         val direction = HomeFragmentDirections.actionHomeFragmentToSearchFragment()
         findNavController().navigate(direction)
-
     }
-
 }
 
 @Composable
