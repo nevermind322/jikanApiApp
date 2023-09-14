@@ -13,7 +13,7 @@ class JikanAnimeDataSource @Inject constructor ( private val animeService: Anime
         if (serverResponse.isSuccessful) {
             val infoJson = serverResponse.body()
             val info = try {
-                AnimeInfo(infoJson!!.data.title, infoJson.data.images.jpg.imageUrl!!, infoJson.data.synopsis!!)
+                AnimeInfo(infoJson!!.data.malId, infoJson.data.title, infoJson.data.images.jpg.imageUrl!!, infoJson.data.synopsis!!)
             }
             catch (e : Throwable){ return ApiResponse.Error(e)
             }
@@ -30,7 +30,7 @@ class JikanAnimeDataSource @Inject constructor ( private val animeService: Anime
         if(serverResponse.isSuccessful){
             val infoJson = serverResponse.body()
             val infoList = try {
-                infoJson!!.data.map { AnimeInfo(it.title, it.images.jpg.imageUrl, it.synopsis ?: "") }
+                infoJson!!.data.map { AnimeInfo(it.malId, it.title, it.images.jpg.imageUrl, it.synopsis ?: "") }
             }
             catch (e: Throwable) {return ApiResponse.Error(e)
             }

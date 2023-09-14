@@ -20,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,52 +38,53 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.fragment.navArgs
 import com.example.jikan.data.AnimeInfo
+import com.example.jikan.viewModels.DetailScreenState
+import com.example.jikan.viewModels.DetailScreenViewModel
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
-import java.lang.Exception
+import kotlinx.coroutines.launch
 
-private const val ARG_PARAM1 = "info"
+@Composable
+fun DetailScreen(id: Int, vm : DetailScreenViewModel = hiltViewModel()) {
 
-class AnimeDetailFragment : Fragment() {
+    var state: DetailScreenState by remember { mutableStateOf(DetailScreenState.Loading) }
 
-    private val args by navArgs<AnimeDetailFragmentArgs>()
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View = ComposeView(requireContext()).apply {
-        setContent {
-            Column {
-                NetworkImage(
-                    url = args.info.imageUrl!!,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                )
-                Text(text = args.info.Title, color = Color.White)
-                TextWithExpandButton(text = args.info.synopsis)
-            }
+    LaunchedEffect(Unit) {
+        launch {
+            state = vm.getAnime(id)
         }
     }
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment AnimeDetailFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: AnimeInfo) = AnimeDetailFragment().apply {
-            arguments = Bundle().apply {
-                putParcelable(ARG_PARAM1, param1)
-            }
+    when (state) {
+        DetailScreenState.Loading -> {
+            Text(text = "Loading")
+        }
+        is DetailScreenState.Success -> {
+            DetailScreen((state as DetailScreenState.Success).info)
+        }
+        is DetailScreenState.Error -> {
+            Text(text = "Error ${(state as DetailScreenState.Error).e}")
         }
     }
+
 }
 
+@Composable
+internal fun DetailScreen(info: AnimeInfo) {
+    Column {
+        NetworkImage(
+            url = info.imageUrl!!,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+        )
+        Text(text = info.Title, color = Color.White)
+        TextWithExpandButton(text = info.synopsis)
+    }
+}
 
 data class ExpandableTextState(val lines: Int, val expanded: Boolean)
 

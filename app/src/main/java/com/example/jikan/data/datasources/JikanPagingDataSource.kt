@@ -42,6 +42,7 @@ class JikanPagingDataSource(private val query: String, private val queries: Map<
                 LoadResult.Page(
                     data = responseBody.data.map {
                         AnimeInfo(
+                            it.malId,
                             it.title,
                             it.images.jpg.imageUrl,
                             it.synopsis ?: ""

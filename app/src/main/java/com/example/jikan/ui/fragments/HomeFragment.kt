@@ -1,9 +1,5 @@
 package com.example.jikan.ui.fragments
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,58 +22,42 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.Fragment
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.fragment.findNavController
-import com.example.compose.JikanTheme
 import com.example.jikan.data.AnimeInfo
-import com.example.jikan.ui.activities.MainActivity
 import com.example.jikan.viewModels.TopAnimeItemsState
 import com.example.jikan.viewModels.TopAnimeViewModel
-import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.Flow
 
-@AndroidEntryPoint
-class HomeFragment : Fragment() {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View = ComposeView(requireContext()).apply {
-        setContent {
-            JikanTheme {
-                Column {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .clickable { goToSearchFragment() },
-                    ) {
-                        Row(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
-                            Icon(Icons.Default.Search, contentDescription = "Search bar")
-                            Text(text = "Search")
-                        }
-                    }
-                    TopAnimeList(viewModel = viewModel()) { (activity as MainActivity).showAnimePage(it) }
-                }
+@Composable
+fun HomeScreen(
+    vm: TopAnimeViewModel = hiltViewModel(),
+    onAnimeClick: (Int) -> Unit,
+    onSearchClick: () -> Unit
+) {
+    Column {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(onClick = onSearchClick),
+        ) {
+            Row(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
+                Icon(Icons.Default.Search, contentDescription = "Search bar")
+                Text(text = "Search")
             }
         }
-    }
-
-
-    private fun goToSearchFragment() {
-        val direction = HomeFragmentDirections.actionHomeFragmentToSearchFragment()
-        findNavController().navigate(direction)
+        TopAnimeList(vm.topAnimeFlow) { onAnimeClick(it.id) }
     }
 }
 
 @Composable
-fun TopAnimeList(viewModel: TopAnimeViewModel, onClick: (AnimeInfo) -> Unit) {
+fun TopAnimeList(topAnimeFlow: Flow<TopAnimeItemsState>, onClick: (AnimeInfo) -> Unit) {
 
-    val uiState by viewModel.topAnimeFlow.collectAsState(initial = TopAnimeItemsState.Loading)
+    val uiState by topAnimeFlow.collectAsState(initial = TopAnimeItemsState.Loading)
 
     when (uiState) {
         is TopAnimeItemsState.Loading -> Text(text = "Loading")
