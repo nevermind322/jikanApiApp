@@ -1,4 +1,4 @@
-package com.example.jikan.ui.fragments
+package com.example.jikan.ui.compose
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +24,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.viewModels.TopAnimeItemsState
 import com.example.jikan.viewModels.TopAnimeViewModel

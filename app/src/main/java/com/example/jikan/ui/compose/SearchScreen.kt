@@ -1,4 +1,4 @@
-package com.example.jikan.ui.fragments
+package com.example.jikan.ui.compose
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,14 +34,13 @@ import com.example.jikan.viewModels.SearchQueryState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(vm: AnimeSearchViewModel = hiltViewModel(), onAnimeClick: (Int) -> Unit) {
+fun SearchScreen(vm: AnimeSearchViewModel = hiltViewModel(), onItemClick: (Int) -> Unit) {
 
     var query by remember { mutableStateOf("") }
     val pagingData = vm.pagingFlow.collectAsLazyPagingItems()
     val list by vm.queriesFlow.collectAsState(initial = emptyList())
     var searchPressed by remember { mutableStateOf(false) }
-    SearchBar(
-        query = query,
+    SearchBar(query = query,
         onQueryChange = { query = it; if (query == "") searchPressed = false },
         onSearch = {
             if (vm.searchAnime(it)) pagingData.refresh()
@@ -51,7 +50,7 @@ fun SearchScreen(vm: AnimeSearchViewModel = hiltViewModel(), onAnimeClick: (Int)
         onActiveChange = { }) {
         if (searchPressed && query != "") AnimeSearchResultList(
             pagingData = pagingData,
-            onClick = onAnimeClick
+            onClick = onItemClick
         )
         else QueryHintList(list)
     }

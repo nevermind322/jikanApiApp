@@ -4,19 +4,14 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.fragment.NavHostFragment
 import com.example.compose.JikanTheme
-import com.example.jikan.JikanApp
-import com.example.jikan.data.AnimeInfo
-import com.example.jikan.ui.fragments.DetailScreen
-import com.example.jikan.ui.fragments.HomeScreen
-import com.example.jikan.ui.fragments.SearchScreen
+import com.example.jikan.ui.compose.DetailScreen
+import com.example.jikan.ui.compose.HomeScreen
+import com.example.jikan.ui.compose.SearchScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
