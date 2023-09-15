@@ -17,13 +17,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -86,13 +86,17 @@ fun AnimeSearchResultList(pagingData: LazyPagingItems<AnimeInfo>, onClick: (Int)
             is LoadState.Error -> pagingData.retry()
             else -> {}
         }
+        when (it.refresh) {
+            is LoadState.Loading -> return
+            else -> {}
+        }
     }
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier.padding(top = 8.dp)
     ) {
-        items(pagingData.itemCount, key = pagingData.itemKey { it.Title }) {
+        items(pagingData.itemCount, key = pagingData.itemKey { it.id }) {
             val el = pagingData[it]!!
             AnimeItem(state = AnimeListElementUiState(el) { onClick(el.id) })
         }
