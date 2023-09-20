@@ -8,10 +8,13 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -66,7 +69,7 @@ fun DetailScreen(id: Int, vm : DetailScreenViewModel = hiltViewModel()) {
 
 @Composable
 internal fun DetailScreen(info: AnimeInfo) {
-    Column {
+    Column(Modifier.verticalScroll(rememberScrollState())) {
         NetworkImage(
             url = info.imageUrl!!,
             modifier = Modifier
