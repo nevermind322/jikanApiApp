@@ -7,23 +7,29 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.example.jikan.data.datasources.JikanPagingDataSource
 import com.example.jikan.data.repos.SearchQueryRepo
+import com.example.jikan.utils.AnimeService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 @HiltViewModel
-class AnimeSearchViewModel @Inject constructor(private val searchRepo: SearchQueryRepo) :
+class AnimeSearchViewModel @Inject constructor(
+    private val searchRepo: SearchQueryRepo,
+    private val service: AnimeService
+) :
     ViewModel() {
 
     private var state: SearchState = SearchState("")
 
-
     val pagingFlow = Pager(PagingConfig(16, initialLoadSize = 16, maxSize = 128)) {
-        JikanPagingDataSource(state.query, state.params)
+        JikanPagingDataSource(service, state.query, state.params)
     }.flow.cachedIn(viewModelScope)
 
-    val queriesFlow  = MutableStateFlow(emptyList<SearchQueryState>())
+    val queriesFlow = MutableStateFlow(emptyList<SearchQueryState>())
 
     init {
         viewModelScope.launch { queriesFlow.emit(getQueries()) }
@@ -35,7 +41,7 @@ class AnimeSearchViewModel @Inject constructor(private val searchRepo: SearchQue
         }
     }
 
-    fun searchAnime(newQuery: String) : Boolean{
+    fun searchAnime(newQuery: String): Boolean {
         viewModelScope.launch {
             insertQuery(newQuery)
             queriesFlow.emit(getQueries())

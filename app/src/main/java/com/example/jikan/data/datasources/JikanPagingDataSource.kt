@@ -1,25 +1,26 @@
 package com.example.jikan.data.datasources
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.utils.AnimeService
-import com.example.jikan.utils.NetworkClient
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class JikanPagingDataSource(
+
+
+class JikanPagingDataSource (
+    private val  netClient : AnimeService,
     private val query: String,
     private val queries: Map<String, String> = mutableMapOf()
 ) : PagingSource<Int, AnimeInfo>() {
 
 
-    private val netClient: AnimeService = NetworkClient
-
     override fun getRefreshKey(state: PagingState<Int, AnimeInfo>) = 1
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AnimeInfo> = withContext(Dispatchers.IO) {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AnimeInfo> =
+        withContext(Dispatchers.IO) {
             when (query) {
                 "" -> LoadResult.Page(data = listOf(), prevKey = null, nextKey = null)
                 else -> {
