@@ -9,31 +9,32 @@ import com.example.jikan.data.datasources.JikanPagingDataSource
 import com.example.jikan.data.repos.SearchQueryRepo
 import com.example.jikan.utils.AnimeService
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @HiltViewModel
 class AnimeSearchViewModel @Inject constructor(
     private val searchRepo: SearchQueryRepo,
     private val service: AnimeService
-) :
-    ViewModel() {
+) : ViewModel() {
 
     private var state: SearchState = SearchState("")
 
-    val pagingFlow = Pager(PagingConfig(16, initialLoadSize = 16, maxSize = 128)) {
+    val pagingFlow = Pager(PagingConfig(16, initialLoadSize = 16, maxSize = 48)) {
         JikanPagingDataSource(service, state.query, state.params)
     }.flow.cachedIn(viewModelScope)
 
-    val queriesFlow = MutableStateFlow(emptyList<SearchQueryState>())
-
-    init {
-        viewModelScope.launch { queriesFlow.emit(getQueries()) }
-    }
+    val queryHintsFlow = getQueries().stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptyList()
+    )
 
     fun searchAnimeOnType(newQuery: String): Boolean {
         return (state.query != newQuery).also {
@@ -42,26 +43,34 @@ class AnimeSearchViewModel @Inject constructor(
     }
 
     fun searchAnime(newQuery: String): Boolean {
-        viewModelScope.launch {
-            insertQuery(newQuery)
-            queriesFlow.emit(getQueries())
-        }
+        viewModelScope.launch { insertQuery(newQuery) }
         return searchAnimeOnType(newQuery)
     }
 
-    private suspend fun getQueries(): List<SearchQueryState> = searchRepo.getAll().map {
-        SearchQueryState(it, { viewModelScope.launch { searchRepo.deleteQuery(it) } }, {})
+    private fun getQueries(): Flow<List<SearchQueryState>> =
+        searchRepo.getAll().map { list ->
+            list.map {
+                SearchQueryState(it,
+                    onClick = {},
+                    onDeleteClick = { viewModelScope.launch { deleteQuery(it) } }
+                )
+            }
+        }
+
+    private fun insertQuery(query: String) {
+        viewModelScope.launch { searchRepo.addQuery(query) }
+
     }
 
-    suspend fun insertQuery(query: String) {
-        searchRepo.addQuery(query)
+    fun deleteQuery(query: String) {
+        viewModelScope.launch { searchRepo.deleteQuery(query) }
     }
 
 
 }
 
 data class SearchState(
-    val query: String, val params: Map<String, String> = mapOf(), val shown: Boolean = false
+    val query: String, val params: Map<String, String> = mapOf()
 )
 
 data class SearchQueryState(

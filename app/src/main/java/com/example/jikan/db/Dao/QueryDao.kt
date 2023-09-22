@@ -6,11 +6,12 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.jikan.db.Entities.SearchQueryDbModel
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface QueryDao {
     @Query("SElECT * FROM SearchQuery")
-    suspend fun getAll() : List<SearchQueryDbModel>
+    fun getAll() : Flow<List<SearchQueryDbModel>>
 
     @Delete
     suspend fun delete(query: SearchQueryDbModel)

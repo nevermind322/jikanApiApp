@@ -3,6 +3,7 @@ package com.example.jikan.di
 import android.content.Context
 import androidx.room.Room
 import com.example.jikan.db.AppDb
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,4 +21,6 @@ object DbModule {
         return Room.databaseBuilder(context, AppDb::class.java, "databaseClass").build()
     }
 
+    @Provides
+    fun getSearchDao(db: AppDb) = db.searchQueryDao()
 }

@@ -3,6 +3,7 @@ package com.example.jikan.ui.compose
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -17,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,10 +38,10 @@ fun SearchScreen(vm: AnimeSearchViewModel = hiltViewModel(), onItemClick: (Int) 
 
     var query by remember { mutableStateOf("") }
     val pagingData = vm.pagingFlow.collectAsLazyPagingItems()
-    val list by vm.queriesFlow.collectAsState(initial = emptyList())
+    val list by vm.queryHintsFlow.collectAsState(initial = emptyList())
     var searchPressed by remember { mutableStateOf(false) }
     SearchBar(query = query,
-        onQueryChange = { query = it; if (query == "") searchPressed = false },
+        onQueryChange = { query = it },
         onSearch = {
             if (vm.searchAnime(it)) pagingData.refresh()
             searchPressed = true
@@ -58,7 +58,9 @@ fun SearchScreen(vm: AnimeSearchViewModel = hiltViewModel(), onItemClick: (Int) 
 
 @Composable
 fun SearchHint(state: SearchQueryState) {
-    Row(modifier = Modifier.clickable(onClick = state.onClick)) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .clickable(onClick = state.onClick)) {
         Icon(
             Icons.Default.Clear,
             contentDescription = "delete hint",
