@@ -2,7 +2,6 @@ package com.example.jikan.data.datasources
 
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.utils.AnimeService
-import java.lang.Exception
 import javax.inject.Inject
 
 class JikanAnimeDataSource @Inject constructor ( private val animeService: AnimeService) {

@@ -1,7 +1,6 @@
 package com.example.jikan.viewModels
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.jikan.data.AnimeInfo
 import com.example.jikan.data.datasources.ApiResponse
 import com.example.jikan.data.repos.AnimeRepository

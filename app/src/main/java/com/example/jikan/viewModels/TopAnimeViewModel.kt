@@ -1,8 +1,8 @@
 package com.example.jikan.viewModels
 
 import androidx.lifecycle.ViewModel
-import com.example.jikan.data.datasources.ApiResponse
 import com.example.jikan.data.AnimeInfo
+import com.example.jikan.data.datasources.ApiResponse
 import com.example.jikan.data.repos.AnimeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow

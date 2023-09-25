@@ -1,8 +1,8 @@
 package com.example.jikan.data.repos
 
+import com.example.jikan.data.AnimeInfo
 import com.example.jikan.data.datasources.ApiResponse
 import com.example.jikan.data.datasources.JikanAnimeDataSource
-import com.example.jikan.data.AnimeInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
