@@ -5,6 +5,7 @@ import org.gradle.kotlin.dsl.dependencies
 class HiltConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
+
             with(pluginManager) {
                 apply("dagger.hilt.android.plugin")
                 // KAPT must go last to avoid build warnings.

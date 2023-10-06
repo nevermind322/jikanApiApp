@@ -41,7 +41,21 @@ gradlePlugin {
         register("appCompose") {
             id = "jikan.android.appCompose"
             implementationClass = "ApplicationComposeConventionPlugin"
+        }
 
+        register("AndroidApplication") {
+            id = "jikan.android.application"
+            implementationClass = "AndroidApplicationConventionPlugin"
+        }
+
+        register("AndroidLibrary"){
+            id = "jikan.android.library"
+            implementationClass = "AndroidLibraryConventionPlugin"
+        }
+
+        register("Room") {
+            id = "jikan.android.room"
+            implementationClass = "AndroidRoomConventionPlugin"
         }
     }
 }
