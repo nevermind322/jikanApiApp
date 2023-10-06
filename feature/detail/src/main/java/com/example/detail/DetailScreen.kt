@@ -8,13 +8,19 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -23,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -42,7 +49,7 @@ import com.squareup.picasso.Target
 
 
 @Composable
-fun DetailScreen(id: Int, vm : DetailScreenViewModel = hiltViewModel()) {
+fun DetailScreen(id: Int, vm: DetailScreenViewModel = hiltViewModel()) {
 
     var state: DetailScreenState by remember { mutableStateOf(DetailScreenState.Loading) }
 
@@ -55,9 +62,11 @@ fun DetailScreen(id: Int, vm : DetailScreenViewModel = hiltViewModel()) {
         DetailScreenState.Loading -> {
             Text(text = "Loading")
         }
+
         is DetailScreenState.Success -> {
             DetailScreen((state as DetailScreenState.Success).info)
         }
+
         is DetailScreenState.Error -> {
             Text(text = "Error ${(state as DetailScreenState.Error).e}")
         }
@@ -67,20 +76,43 @@ fun DetailScreen(id: Int, vm : DetailScreenViewModel = hiltViewModel()) {
 
 @Composable
 internal fun DetailScreen(info: AnimeInfo) {
-    Column(Modifier.verticalScroll(rememberScrollState())) {
+    Column(
+        Modifier
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 8.dp)
+    ) {
         NetworkImage(
             url = info.imageUrl!!,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp)
+                .padding(top = 8.dp)
         )
-        Text(text = info.Title, color = Color.White)
+        Text(text = info.Title, color = Color.White, fontSize = 18.sp)
+        Spacer(Modifier.height(8.dp))
         TextWithExpandButton(text = info.synopsis)
+        Spacer(Modifier.height(8.dp))
+        GenresList(info.genres)
     }
 }
 
 data class ExpandableTextState(val lines: Int, val expanded: Boolean)
 
+
+@Composable
+fun GenresList(genres: List<String>) {
+    Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
+        for (genre in genres) {
+            Spacer(modifier = Modifier.width(4.dp))
+            GenreChip(genre)
+        }
+    }
+}
+
+@Composable
+fun GenreChip(genre: String) {
+    SuggestionChip(onClick = {}, label = { Text(genre) })
+}
 
 @Composable
 fun NetworkImage(url: String, modifier: Modifier) {
@@ -132,30 +164,28 @@ fun TextWithExpandButton(text: String) {
                 ExpandableTextState(lines = 6, expanded = false)
             )
         }
-        val style = remember { TextStyle(color = Color.Yellow, fontSize = 18.sp) }
+
         val textMeasurer = rememberTextMeasurer()
 
         BoxWithConstraints(
             modifier = Modifier.animateContentSize(
                 animationSpec = tween(
-                    1000,
+                    300,
                     easing = LinearEasing
                 )
             )
         ) {
             val measureResult = textMeasurer.measure(
                 text,
-                style = style,
                 constraints = Constraints(maxWidth = constraints.maxWidth)
             )
             button = measureResult.lineCount > 6
             Text(
                 text = text,
-                style = style,
                 maxLines = state.lines,
                 color = Color.White,
-                onTextLayout = { Log.wtf("text lines", " text ${it.lineCount}") })
-
+                fontSize = 14.sp
+            )
         }
 
         val onclick = {
@@ -165,7 +195,7 @@ fun TextWithExpandButton(text: String) {
             )
         }
         if (button) {
-            Button(onClick = onclick) {
+            Button(onClick = onclick, modifier = Modifier.align(Alignment.CenterHorizontally)) {
                 Text(text = if (state.expanded) "collapse" else "expand")
             }
         }

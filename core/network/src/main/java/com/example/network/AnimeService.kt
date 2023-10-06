@@ -2,6 +2,7 @@ package com.example.network
 
 import com.google.gson.GsonBuilder
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -11,19 +12,19 @@ import retrofit2.http.QueryMap
 
 interface AnimeService {
     @GET("anime/{id}")
-    fun getAnimeById(@Path("id") id: Int): Call<AnimeJson>
+    suspend fun getAnimeById(@Path("id") id: Int): Response<AnimeJson>
 
     @GET("anime")
-    fun searchAnimeByName(
+    suspend fun searchAnimeByName(
         @Query("q") name: String,
         @QueryMap queries: Map<String, String>
-    ): Call<PagedAnimeResponse>
+    ): Response<PagedAnimeResponse>
 
     @GET("top/anime")
-    fun getTopAnime(@QueryMap queries: Map<String, String>): Call<PagedAnimeResponse>
+    suspend fun getTopAnime(@QueryMap queries: Map<String, String>): Response<PagedAnimeResponse>
 }
 
-object NetworkClient : AnimeService {
+object NetworkClient : AnimeService{
 
     private val gson = GsonBuilder().create()
 
@@ -34,13 +35,14 @@ object NetworkClient : AnimeService {
 
     private val apiService = retrofit.create(AnimeService::class.java)
 
-    override fun getAnimeById(id: Int) =
+    override suspend fun getAnimeById(id: Int) =
         apiService.getAnimeById(id)
 
-    override fun searchAnimeByName(name: String, queries: Map<String, String>) =
+    override suspend fun searchAnimeByName(name: String, queries: Map<String, String>) =
         apiService.searchAnimeByName(name, queries)
 
-    override fun getTopAnime(queries: Map<String, String>) =
+    override suspend fun getTopAnime(queries: Map<String, String>) =
         apiService.getTopAnime(queries)
 
 }
+

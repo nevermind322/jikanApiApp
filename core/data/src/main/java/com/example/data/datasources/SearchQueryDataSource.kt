@@ -21,5 +21,4 @@ class SearchQueryDataSource @Inject constructor(private val searchDao: QueryDao)
     suspend fun addQuery(query: String) = withContext(Dispatchers.IO) {
         searchDao.insertAll(SearchQueryDbModel(query))
     }
-
 }
