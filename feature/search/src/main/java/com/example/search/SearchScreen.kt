@@ -2,6 +2,7 @@ package com.example.search
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -47,9 +48,30 @@ fun SearchScreen(vm: AnimeSearchViewModel = hiltViewModel(), onItemClick: (Int) 
     val list by vm.queryHintsFlow.collectAsState(initial = emptyList())
     var active by remember { mutableStateOf(false) }
 
-    MySearchBar(q = query, onQueryChange = { query = it }, onSearch = {}, onBackPressed = {})
-}
+    Column {
+        MySearchBar(q = query, onQueryChange = {
+            query = it
+            if (it == "") active = false
+        }, onSearch = {
+            active = true
+            vm.searchAnime(query)
+            pagingData.refresh()
+        }, onBackPressed = {})
 
+        if (active) {
+            AnimeSearchResultList(pagingData = pagingData, onClick = onItemClick)
+        } else {
+            QueryHintList(list = list.map {
+                SearchQueryUiState(it) {
+                    query = it.query
+                    active = true
+                    vm.searchAnime(query)
+                    pagingData.refresh()
+                }
+            })
+        }
+    }
+}
 
 @Composable
 fun MySearchBar(
@@ -84,8 +106,10 @@ fun MySearchBar(
     )
 }
 
+data class SearchQueryUiState(val searchState: SearchQueryState, val onClick: () -> Unit)
+
 @Composable
-fun SearchHint(state: SearchQueryState) {
+fun SearchHint(state: SearchQueryUiState) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -94,16 +118,16 @@ fun SearchHint(state: SearchQueryState) {
         Icon(
             Icons.Default.Clear,
             contentDescription = "delete hint",
-            modifier = Modifier.clickable(onClick = state.onDeleteClick)
+            modifier = Modifier.clickable(onClick = state.searchState.onDeleteClick)
         )
-        Text(state.query)
+        Text(state.searchState.query)
     }
 }
 
 @Composable
-fun QueryHintList(list: List<SearchQueryState>) {
+fun QueryHintList(list: List<SearchQueryUiState>) {
     LazyColumn {
-        items(list, key = { it.query }) { SearchHint(state = it) }
+        items(list, key = { it.searchState.query }) { SearchHint(state = it) }
     }
 }
 

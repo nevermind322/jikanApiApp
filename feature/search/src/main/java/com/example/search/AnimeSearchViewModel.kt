@@ -11,6 +11,7 @@ import com.example.network.AnimeService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -24,9 +25,11 @@ class AnimeSearchViewModel @Inject constructor(
 
     private var state: SearchState = SearchState("")
 
-    val pagingFlow = Pager(PagingConfig(16, initialLoadSize = 16, maxSize = 48)) {
+    private val pager = Pager(PagingConfig(16, initialLoadSize = 16, maxSize = 48)) {
         JikanPagingDataSource(service, state.query, state.params)
-    }.flow.cachedIn(viewModelScope)
+    }
+
+    val pagingFlow = pager.flow.cachedIn(viewModelScope)
 
     val queryHintsFlow = getQueries().stateIn(
         viewModelScope,
@@ -34,22 +37,17 @@ class AnimeSearchViewModel @Inject constructor(
         emptyList()
     )
 
-    fun searchAnimeOnType(newQuery: String): Boolean {
-        return (state.query != newQuery).also {
-            if (it) state = state.copy(query = newQuery)
-        }
+    fun searchAnime(newQuery: String) {
+        viewModelScope.launch { insertQuery(newQuery) }
+        if (state.query != newQuery)
+            state = state.copy(query = newQuery)
     }
 
-    fun searchAnime(newQuery: String): Boolean {
-        viewModelScope.launch { insertQuery(newQuery) }
-        return searchAnimeOnType(newQuery)
-    }
 
     private fun getQueries(): Flow<List<SearchQueryState>> =
         searchRepo.getAll().map { list ->
             list.map {
                 SearchQueryState(it,
-                    onClick = {},
                     onDeleteClick = { viewModelScope.launch { deleteQuery(it) } }
                 )
             }
@@ -72,5 +70,5 @@ data class SearchState(
 )
 
 data class SearchQueryState(
-    val query: String, val onClick: () -> Unit, val onDeleteClick: () -> Unit
+    val query: String, val onDeleteClick: () -> Unit
 )
